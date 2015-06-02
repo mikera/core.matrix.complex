@@ -6,9 +6,11 @@
             [mikera.cljutils.error :refer :all])
   (:import [org.apache.commons.math3.complex Complex]))
 
-(declare real imag complex-array)
+(declare real imag complex-array complex complex? canonical-complex-array)
 
-;; The complex array class
+;; ==============================================================
+;;
+;; The ComplexArray class and protocol implementations
 ;;
 ;; Implemented as a wrapper of two numerical arrays representing the real and imaginary parts
 
@@ -84,6 +86,48 @@
      (seq [m]
        (map complex-array (m/slices (.real m)) (m/slices (.imag m)))))
 
+
+;; ========================================================================
+;;
+;; Protocol implementations for the Complex number type, used as a scalar
+;;
+;; These are needed to allow the COmplex numbers themselves to participate fully in core.matrix protocols
+
+(extend-protocol mp/PImplementation 
+   Complex
+	  (implementation-key [m]
+	    :complex)
+	  (meta-info [m]
+	      {:doc "Implementation for complex scalars"})
+	  (new-vector [m length] 
+      (mp/new-vector canonical-complex-array length))
+	  (new-matrix [m rows columns] 
+      (mp/new-matrix canonical-complex-array rows columns))
+	  (new-matrix-nd [m dims]
+	    (mp/new-matrix-nd canonical-complex-array dims))
+	  (construct-matrix [m data]
+	    (complex data))
+	  (supports-dimensionality? [m dims]
+	    true))
+
+;; ========================================================================
+;;
+;; Functions for handling complex arrays
+
+(defn complex
+  "Function to coerce a value to a complex scalar or array"
+  ([a]
+    (cond 
+      (complex? a) a
+      (number? a) (c/complex-number a)
+      (mp/get-shape a) (complex-array a)
+      :else (error "Unable to coerce to complex value: " a))))
+
+(defn complex?
+  "Predicate to test whether a value is a complex number or array supported by core.matrix.complex"
+  ([a]
+    (boolean (or (instance? Complex a) (instance? ComplexArray a)))))
+
 (defn complex-array 
   ([real]
     (complex-array real 0.0))
@@ -110,5 +154,9 @@
 	    (and (m/array? m) (m/numerical? m)) (mp/coerce-param m (mp/broadcast-like m 0.0)) 
 	    :else (error "Unable to get imaginary part of object: " m))))
 
+;; a canoncial object used to register the complex array implementation
+(def canonical-complex-array
+  (let [a (complex-array 0 1)] 
+    (imp/register-implementation a)
+    a))
 
-(imp/register-implementation (complex-array 0 1))
