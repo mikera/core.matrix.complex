@@ -1,4 +1,4 @@
-(ns core.matrix.complex
+(ns clojure.core.matrix.complex
   (:require [clojure.core.matrix.protocols :as mp]
             [clojure.core.matrix :as m]
             [complex.core :as c]
@@ -24,7 +24,8 @@
 	  (new-matrix-nd [m dims]
 	    (ComplexArray. (m/new-array dims) (m/new-array dims)))
 	  (construct-matrix [m data]
-	    (ComplexArray. (core.matrix.complex/real data) (core.matrix.complex/imag data)))
+	    (ComplexArray. (clojure.core.matrix.complex/real data) 
+                     (clojure.core.matrix.complex/imag data)))
 	  (supports-dimensionality? [m dims]
 	    true)
    
@@ -53,27 +54,27 @@
     
     mp/PIndexedSetting
 	    (set-1d [m row v]
-	      (ComplexArray. (mp/set-1d real row (core.matrix.complex/real v))
-                       (mp/set-1d imag row (core.matrix.complex/imag v))))
+	      (ComplexArray. (mp/set-1d real row (clojure.core.matrix.complex/real v))
+                       (mp/set-1d imag row (clojure.core.matrix.complex/imag v))))
 	    (set-2d [m row column v]
-	      (ComplexArray. (mp/set-2d real row column (core.matrix.complex/real v))
-                       (mp/set-2d imag row column (core.matrix.complex/imag v))))
+	      (ComplexArray. (mp/set-2d real row column (clojure.core.matrix.complex/real v))
+                       (mp/set-2d imag row column (clojure.core.matrix.complex/imag v))))
 	    (set-nd [m indexes v]
-	      (ComplexArray. (mp/set-nd real indexes (core.matrix.complex/real v))
-                       (mp/set-nd imag indexes (core.matrix.complex/imag v))))
+	      (ComplexArray. (mp/set-nd real indexes (clojure.core.matrix.complex/real v))
+                       (mp/set-nd imag indexes (clojure.core.matrix.complex/imag v))))
 	    (is-mutable? [m]
 	      (mp/is-mutable? real))
      
      mp/PIndexedSettingMutable
      (set-1d! [m x v]
-      (mp/set-1d! real x (core.matrix.complex/real v))
-       (mp/set-1d! imag x (core.matrix.complex/imag v)))
+      (mp/set-1d! real x (clojure.core.matrix.complex/real v))
+       (mp/set-1d! imag x (clojure.core.matrix.complex/imag v)))
      (set-2d! [m x y v]
-      (mp/set-2d! real x y (core.matrix.complex/real v))
-      (mp/set-2d! imag x y (core.matrix.complex/imag v)))
+      (mp/set-2d! real x y (clojure.core.matrix.complex/real v))
+      (mp/set-2d! imag x y (clojure.core.matrix.complex/imag v)))
      (set-nd! [m indexes v]
-      (mp/set-nd! real indexes (core.matrix.complex/real v))
-      (mp/set-nd! imag indexes (core.matrix.complex/imag v)))
+      (mp/set-nd! real indexes (clojure.core.matrix.complex/real v))
+      (mp/set-nd! imag indexes (clojure.core.matrix.complex/imag v)))
     
     java.lang.Object 
     (toString [m]
