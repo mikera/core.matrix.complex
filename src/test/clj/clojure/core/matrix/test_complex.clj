@@ -4,6 +4,9 @@
             [clojure.core.matrix.complex :as cm]
             [clojure.core.matrix :as m]))
 
+(set! *warn-on-reflection* true)
+(set! *unchecked-math* true)
+
 (deftest test-complex
   (let [c (c/complex-number 1 2)]
     (is (== 1 (cm/real c)))
@@ -23,4 +26,6 @@
   (is (not (cm/complex? 3.5)))
   (is (not (cm/complex? [1 2 3])))
   (is (cm/complex? (cm/complex-array [1 2 3]))))
+
+()
 

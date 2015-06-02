@@ -6,6 +6,9 @@
             [mikera.cljutils.error :refer :all])
   (:import [org.apache.commons.math3.complex Complex]))
 
+(set! *warn-on-reflection* true)
+(set! *unchecked-math* true)
+
 (declare real imag complex-array complex complex? canonical-complex-array)
 
 ;; ==============================================================
@@ -77,12 +80,16 @@
      (set-nd! [m indexes v]
       (mp/set-nd! real indexes (clojure.core.matrix.complex/real v))
       (mp/set-nd! imag indexes (clojure.core.matrix.complex/imag v)))
+     
+     mp/PTypeInfo
+     (element-type [m]
+       Complex)
     
-    java.lang.Object 
-    (toString [m]
-      (str "(" (str (.real m)) ", " (str (.imag m)) ")]"))
+     java.lang.Object 
+     (toString [m]
+       (str "(" (str (.real m)) ", " (str (.imag m)) ")]"))
   
-   clojure.lang.Seqable
+     clojure.lang.Seqable
      (seq [m]
        (map complex-array (m/slices (.real m)) (m/slices (.imag m))))
 
@@ -158,21 +165,23 @@
   "Get the real part of a complex array"
   ([m]
     (cond 
-      (instance? ComplexArray m) (.real ^ComplexArray m)
       (instance? Complex m) (.getReal ^Complex m)
+      (instance? ComplexArray m) (.real ^ComplexArray m)
       (number? m) m
-      (and (m/array? m) (m/numerical? m)) m
-      :else (error "Unable to get real part of object: " m))))
+      (m/numerical? m) m
+      (m/array? m) (m/emap real m)
+      :else (error "Unable to get real part of object: " m " with type " (class m)))))
 
 (defn imag 
   "Get the imaginary part of a complex array"
   ([m]
     (cond 
-	    (instance? ComplexArray m) (.imag ^ComplexArray m)
 	    (instance? Complex m) (.getImaginary ^Complex m)
+	    (instance? ComplexArray m) (.imag ^ComplexArray m)
 	    (number? m) 0.0
-	    (and (m/array? m) (m/numerical? m)) (mp/coerce-param m (mp/broadcast-like m 0.0)) 
-	    :else (error "Unable to get imaginary part of object: " m))))
+	    (m/numerical? m) (mp/coerce-param m (mp/broadcast-like m 0.0)) 
+	    (m/array? m) (m/emap imag m)
+      :else (error "Unable to get imaginary part of object: " m " with type " (class m)))))
 
 ;; a canoncial object used to register the complex array implementation
 (def canonical-complex-array
