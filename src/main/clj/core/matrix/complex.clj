@@ -40,7 +40,7 @@
     (dimension-count [m x]
       (mp/dimension-count (.real m) x))
     
-    mp/PIndexedAccess
+   mp/PIndexedAccess
     (get-1d [m x]
       (c/complex-number (double (mp/get-1d (.real m) x))
                         (double (mp/get-1d (.imag m) x))))
@@ -50,10 +50,34 @@
     (get-nd [m indexes]
       (c/complex-number (double (mp/get-nd (.real m) indexes))
                         (double (mp/get-nd (.imag m) indexes))))
-  
-   java.lang.Object 
-     (toString [m]
-       (str "(" (str (.real m)) ", " (str (.imag m)) ")]"))
+    
+    mp/PIndexedSetting
+	    (set-1d [m row v]
+	      (ComplexArray. (mp/set-1d real row (core.matrix.complex/real v))
+                       (mp/set-1d imag row (core.matrix.complex/imag v))))
+	    (set-2d [m row column v]
+	      (ComplexArray. (mp/set-2d real row column (core.matrix.complex/real v))
+                       (mp/set-2d imag row column (core.matrix.complex/imag v))))
+	    (set-nd [m indexes v]
+	      (ComplexArray. (mp/set-nd real indexes (core.matrix.complex/real v))
+                       (mp/set-nd imag indexes (core.matrix.complex/imag v))))
+	    (is-mutable? [m]
+	      (mp/is-mutable? real))
+     
+     mp/PIndexedSettingMutable
+     (set-1d! [m x v]
+      (mp/set-1d! real x (core.matrix.complex/real v))
+       (mp/set-1d! imag x (core.matrix.complex/imag v)))
+     (set-2d! [m x y v]
+      (mp/set-2d! real x y (core.matrix.complex/real v))
+      (mp/set-2d! imag x y (core.matrix.complex/imag v)))
+     (set-nd! [m indexes v]
+      (mp/set-nd! real indexes (core.matrix.complex/real v))
+      (mp/set-nd! imag indexes (core.matrix.complex/imag v)))
+    
+    java.lang.Object 
+    (toString [m]
+      (str "(" (str (.real m)) ", " (str (.imag m)) ")]"))
   
    clojure.lang.Seqable
      (seq [m]
@@ -82,7 +106,7 @@
 	    (instance? ComplexArray m) (.imag ^ComplexArray m)
 	    (instance? Complex m) (.getImaginary ^Complex m)
 	    (number? m) 0.0
-	    (and (m/array? m) (m/numerical? m)) (mp/broadcast-coerce m 0.0) 
+	    (and (m/array? m) (m/numerical? m)) (mp/coerce-param m (mp/broadcast-like m 0.0)) 
 	    :else (error "Unable to get imaginary part of object: " m))))
 
 
