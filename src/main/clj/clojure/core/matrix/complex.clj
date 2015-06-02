@@ -82,7 +82,21 @@
   
    clojure.lang.Seqable
      (seq [m]
-       (map complex-array (m/slices (.real m)) (m/slices (.imag m)))))
+       (map complex-array (m/slices (.real m)) (m/slices (.imag m))))
+
+   mp/PMatrixAdd
+     (matrix-add [m a]
+       (ComplexArray. (mp/matrix-add (real m) (real a))
+                      (mp/matrix-add (imag m) (imag a))))
+
+   mp/PMatrixProducts
+     (inner-product [m a]
+       (ComplexArray. (mp/add-scaled (mp/inner-product (real m) (real a))
+                                     (mp/inner-product (imag m) (imag a))
+                                     -1)
+                      (mp/matrix-add (mp/inner-product (real m) (imag a))
+                                     (mp/inner-product (imag m) (real a))))))
+
 
 (defn complex-array 
   ([real]
