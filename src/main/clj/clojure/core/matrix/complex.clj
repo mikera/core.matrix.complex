@@ -87,7 +87,7 @@
     
      java.lang.Object 
      (toString [m]
-       (str "(" (str (.real m)) ", " (str (.imag m)) ")]"))
+       (str "#complex/complex-array [" (clojure.core.matrix.complex/real m) ", " (clojure.core.matrix.complex/imag m) "]"))
   
      clojure.lang.Seqable
      (seq [m]
@@ -183,6 +183,13 @@
 	    (m/array? m) (m/emap imag m)
       :else (error "Unable to get imaginary part of object: " m " with type " (class m)))))
 
+;; Print methods for complex types
+(defmethod print-method ComplexArray [^Object v ^java.io.Writer w]
+  (.write w (.toString v)))
+
+(defmethod print-method Complex [v ^java.io.Writer w]
+  (.write w (str "#complex/complex [" (real v) ", " (imag v) "]")))
+
 ;; a canoncial object used to register the complex array implementation
 (def canonical-complex-array
   (let [a (complex-array 0 1)] 
@@ -190,4 +197,5 @@
     a))
 
 (imp/register-implementation (complex-array 0 1))
+(imp/register-implementation (c/complex-number 2 3))
 
