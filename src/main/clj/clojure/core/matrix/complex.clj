@@ -91,11 +91,15 @@
 
    mp/PMatrixProducts
      (inner-product [m a]
-       (ComplexArray. (mp/add-scaled (mp/inner-product (.real m) (clojure.core.matrix.complex/real a))
-                                     (mp/inner-product (.imag m) (clojure.core.matrix.complex/imag a))
+       (ComplexArray. (mp/add-scaled (mp/inner-product (clojure.core.matric.complex/real m)
+                                                       (clojure.core.matrix.complex/real a))
+                                     (mp/inner-product (clojure.core.matric.complex/imag m)
+                                                       (clojure.core.matrix.complex/imag a))
                                      -1)
-                      (mp/matrix-add (mp/inner-product (.real m) (clojure.core.matrix.complex/imag a))
-                                     (mp/inner-product (.imag m) (clojure.core.matrix.complex/real a))))))
+                      (mp/matrix-add (mp/inner-product (clojure.core.matric.complex/real m)
+                                                       (clojure.core.matrix.complex/imag a))
+                                     (mp/inner-product (clojure.core.matric.complex/imag m)
+                                                       (clojure.core.matrix.complex/real a))))))
 
 
 (defn complex-array 
