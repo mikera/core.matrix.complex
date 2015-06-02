@@ -21,5 +21,6 @@
   (is (cm/complex? (c/complex-number 1 2)))
   (is (cm/complex? (cm/complex-array 1 2)))
   (is (not (cm/complex? 3.5)))
-  (is (not (cm/complex? [1 2 3]))))
+  (is (not (cm/complex? [1 2 3])))
+  (is (cm/complex? (cm/complex-array [1 2 3]))))
 
