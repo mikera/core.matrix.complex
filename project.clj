@@ -8,6 +8,7 @@
                  [net.mikera/core.matrix.stats "0.5.0"]]
 
   :profiles {:dev {:dependencies [[net.mikera/vectorz-clj "0.29.0"]
+                                  [net.mikera/cljunit "0.3.1"]
                                   [net.mikera/core.matrix.testing "0.0.1"]]}}
 
   :source-paths ["src/main/clj"]
