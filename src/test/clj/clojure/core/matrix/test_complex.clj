@@ -27,6 +27,12 @@
   (is (not (cm/complex? [1 2 3])))
   (is (cm/complex? (cm/complex-array [1 2 3]))))
 
+(deftest test-complex-equality
+  (is (m/e= (c/complex-number 1 2) (cm/complex-array 1 2))))
+
 (deftest test-scaling
-  (is (= (c/complex-number 3 6) (m/scale (c/complex-number 1 2) 3))))
+  (is (= (c/complex-number 3 6) (m/scale (c/complex-number 1 2) 3)))
+  (is (= (c/complex-number 3 6) (m/scale 3 (c/complex-number 1 2))))
+  (is (= (c/complex-number 3 6) (m/mul (c/complex-number 1 2) 3)))
+  (is (= (c/complex-number 3 6) (m/mul 3 (c/complex-number 1 2)))))
 
