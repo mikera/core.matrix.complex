@@ -149,6 +149,26 @@
 	  (supports-dimensionality? [m dims]
 	    true))
 
+(extend-protocol mp/PMatrixScaling
+  Complex
+    (scale [m a]
+      (cond 
+        (or (instance? Complex a) (number? a)) (c/* m a)
+        (instance? ComplexArray a) (mp/pre-scale a m)
+        (m/array? a) (mp/pre-scale (complex-array a) m)
+        :else (error "Unable to multiply " (class a) " with a Complex value")))
+    (pre-scale [m a]
+      (cond 
+        (or (instance? Complex a) (number? a)) (c/* a m)
+        (instance? ComplexArray a) (mp/scale a m)
+        (m/array? a) (mp/scale (complex-array a) m)
+        :else (error "Unable to multiply " (class a) " with a Complex value")))
+  Object
+    (scale [m a]
+      (mp/element-map m #(* % a)))
+    (pre-scale [m a]
+      (mp/element-map m (partial * a))))
+
 ;; ========================================================================
 ;;
 ;; Functions for handling complex arrays
