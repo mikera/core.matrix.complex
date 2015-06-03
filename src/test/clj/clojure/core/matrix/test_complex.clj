@@ -34,5 +34,7 @@
   (is (= (c/complex-number 3 6) (m/scale (c/complex-number 1 2) 3)))
   (is (= (c/complex-number 3 6) (m/scale 3 (c/complex-number 1 2))))
   (is (= (c/complex-number 3 6) (m/mul (c/complex-number 1 2) 3)))
-  (is (= (c/complex-number 3 6) (m/mul 3 (c/complex-number 1 2)))))
+  (is (= (c/complex-number 3 6) (m/mul 3 (c/complex-number 1 2))))
+  (is (= (c/complex-number 3 6) (m/mul 3 (c/complex-number 1 2))))
+  (is (= (c/complex-number -310 70) (m/scale (c/complex-number 1 3) (c/complex-number -10 100)))))
 
