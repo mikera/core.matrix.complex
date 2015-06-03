@@ -99,6 +99,18 @@
                                      (clojure.core.matrix.complex/real a))
                       (mp/matrix-add (clojure.core.matrix.complex/imag m)
                                      (clojure.core.matrix.complex/imag a))))
+     
+   mp/PMatrixScaling
+    (scale [m a]
+      (cond 
+        (number? a) (ComplexArray. (mp/scale (clojure.core.matrix.complex/real m) a)
+                                   (mp/scale (clojure.core.matrix.complex/imag m) a))
+        :else (TODO)))
+    (pre-scale [m a]
+      (cond 
+        (number? a) (ComplexArray. (mp/scale (clojure.core.matrix.complex/real m) a)
+                                   (mp/scale (clojure.core.matrix.complex/imag m) a))
+        :else (TODO)))
 
    mp/PMatrixProducts
      (inner-product [m a]
