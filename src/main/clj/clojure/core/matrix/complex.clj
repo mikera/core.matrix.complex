@@ -19,7 +19,7 @@
 
 (deftype ComplexArray [real imag]
   mp/PImplementation
-  (implementation-key [m]
+  (implementation-key [m]  ;; in this case, 'm' takes the place of the more typical 'this'
     :complex-array)
   (meta-info [m]
     {:doc "Implementation for complex arrays"})
@@ -110,12 +110,12 @@
     (cond
       (number? a) (ComplexArray. (mp/scale (clojure.core.matrix.complex/real m) a)
                                  (mp/scale (clojure.core.matrix.complex/imag m) a))
-      :else (TODO)))
+      :else (error "Unable to multiply " (class a) " with a Complex value")))
   (pre-scale [m a]
     (cond
       (number? a) (ComplexArray. (mp/scale (clojure.core.matrix.complex/real m) a)
                                  (mp/scale (clojure.core.matrix.complex/imag m) a))
-      :else (TODO)))
+      :else (error "Unable to multiply " (class a) " with a Complex value")))
 
   mp/PMatrixProducts
   (inner-product [m a]
