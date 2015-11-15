@@ -19,7 +19,7 @@
 
 (deftype ComplexArray [real imag]
   mp/PImplementation
-  (implementation-key [m]  ;; in this case, 'm' takes the place of the more typical 'this'
+  (implementation-key [m]                                   ;; in this case, 'm' takes the place of the more typical 'this'
     :complex-array)
   (meta-info [m]
     {:doc "Implementation for complex arrays"})
@@ -110,6 +110,10 @@
     (cond
       (number? a) (ComplexArray. (mp/scale (clojure.core.matrix.complex/real m) a)
                                  (mp/scale (clojure.core.matrix.complex/imag m) a))
+      (instance? Complex a) (ComplexArray. (mp/scale (clojure.core.matrix.complex/real m)
+                                                     (c/real-part a))
+                                           (mp/scale (clojure.core.matrix.complex/imag m)
+                                                     (c/imaginary-part a)))
       :else (error "Unable to multiply " (class a) " with a Complex value")))
   (pre-scale [m a]
     (cond
@@ -180,12 +184,16 @@
 
 (defn complex
   "Function to coerce a value to a complex scalar or array"
-  ([a]
+  ([r]
    (cond
-     (complex? a) a
-     (number? a) (c/complex-number a)
-     (mp/get-shape a) (complex-array a)
-     :else (error "Unable to coerce to complex value: " a))))
+     (complex? r) r
+     (number? r) (c/complex-number r)
+     (mp/get-shape r) (complex-array r)
+     :else (error "Unable to coerce to complex value: " r)))
+  ([r i]
+   (cond
+     (and  (number? r) (number? i)) (c/complex-number r i)
+     :else (error "Unable to coerce to complex value: " r i))))
 
 (defn complex?
   "Predicate to test whether a value is a complex number or array supported by core.matrix.complex"
