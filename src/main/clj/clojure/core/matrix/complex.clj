@@ -110,10 +110,17 @@
     (cond
       (number? a) (ComplexArray. (mp/scale (clojure.core.matrix.complex/real m) a)
                                  (mp/scale (clojure.core.matrix.complex/imag m) a))
-      (instance? Complex a) (ComplexArray. (mp/scale (clojure.core.matrix.complex/real m)
-                                                     (c/real-part a))
-                                           (mp/scale (clojure.core.matrix.complex/imag m)
-                                                     (c/imaginary-part a)))
+      (instance? Complex a) (ComplexArray.
+                              (mp/matrix-sub
+                                (mp/scale (clojure.core.matrix.complex/real m)
+                                          (c/real-part a))
+                                (mp/scale (clojure.core.matrix.complex/imag m)
+                                          (c/imaginary-part a)))
+                              (mp/matrix-add
+                                (mp/scale (clojure.core.matrix.complex/imag m)
+                                          (c/real-part a))
+                                (mp/scale (clojure.core.matrix.complex/real m)
+                                          (c/imaginary-part a))))
       :else (error "Unable to multiply " (class a) " with a Complex value")))
   (pre-scale [m a]
     (cond
@@ -192,7 +199,7 @@
      :else (error "Unable to coerce to complex value: " r)))
   ([r i]
    (cond
-     (and  (number? r) (number? i)) (c/complex-number r i)
+     (and (number? r) (number? i)) (c/complex-number r i)
      :else (error "Unable to coerce to complex value: " r i))))
 
 (defn complex?
