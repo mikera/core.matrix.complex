@@ -36,5 +36,18 @@
   (is (= (c/complex-number 3 6) (m/mul (c/complex-number 1 2) 3)))
   (is (= (c/complex-number 3 6) (m/mul 3 (c/complex-number 1 2))))
   (is (= (c/complex-number 3 6) (m/mul 3 (c/complex-number 1 2))))
-  (is (= (c/complex-number -310 70) (m/scale (c/complex-number 1 3) (c/complex-number -10 100)))))
+  (is (= (c/complex-number -310 70) (m/scale (c/complex-number 1 3) (c/complex-number -10 100))))
+  (is (= (m/scale
+           (cm/complex-array (m/identity-matrix 2))
+           (cm/complex 3 6))))
+  (is (m/e= (m/scale
+              (cm/complex-array [[1 2] [3 4]] [[5 6] [7 8]]) (cm/complex 0 1))
+            (cm/complex-array [[-5.0 -6.0] [-7.0 -8.0]] [[1.0 2.0] [3.0 4.0]]))))
+
+(deftest test-transpose
+  (is (m/e= (m/transpose (cm/complex-array (m/identity-matrix 10)))
+            (cm/complex-array (m/identity-matrix 10))))
+  (is (m/e= (m/transpose (cm/complex-array [[1 2] [3 4]])) (cm/complex-array [[1 3] [2 4]] [[0 0] [0 0]])))
+  (is (m/e= (m/transpose (cm/complex-array [[1 2] [3 4]] [[10 2] [1 5]]))
+            (cm/complex-array [[1 3] [2 4]] [[10 1] [2 5]]))))
 
