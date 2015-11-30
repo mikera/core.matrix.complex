@@ -133,11 +133,16 @@
     (let [real-trace (m/trace (clojure.core.matrix.complex/real m))
           imag-trace (m/trace (clojure.core.matrix.complex/imag m))]
       (complex real-trace imag-trace)))
-  (determinant [m])
+  ;(determinant [m]
+  ;  (if (= 2 (first (m/shape m)))
+  ;    (- (map #(reduce c/* %) (m/main-diagonal m) (m/transpose (m/main-diagonal m))))
+  ;    (+ (map (fn [matrix]
+  ;              (* (m/mget matrix index 0) m))
+  ;            (m/submatrix)))))
   (inverse [m]
     (let [A (clojure.core.matrix.complex/real m)
           C (clojure.core.matrix.complex/imag m)
-          r0 (m/mul (m/inverse A) C)  ; use the highly optimized real inverse from
+          r0 (m/mul (m/inverse A) C)                        ; use the highly optimized real inverse from
           y11 (m/inverse (m/add (m/mul C r0) A))
           y01 (m/mul r0 y11)]
       (complex-array y11 (m/negate y01))))
@@ -152,9 +157,25 @@
                    (mp/matrix-add (mp/inner-product (clojure.core.matrix.complex/real m)
                                                     (clojure.core.matrix.complex/imag a))
                                   (mp/inner-product (clojure.core.matrix.complex/imag m)
-                                                    (clojure.core.matrix.complex/real a))))))
+                                                    (clojure.core.matrix.complex/real a)))))
 
+  mp/PGenericValues
+  (generic-zero [m] "Generic 'zero' value for numerical arrays. Must satisfy (equals m (add m zero))."
+    (complex 0 0))
+  (generic-one [m] "Generic 'one' value for numerical arrays. Must satisfy (equals m (mul m one))."
+    (complex 1 0))
+  (generic-value [m] "Generic value for a new array. Likely to be zero or nil."
+    (complex 0 1))
 
+  mp/PGenericOperations
+  (generic-add [m] "Generic 'add' function for numerical values. Must satisfy (equals x (add zero x))."
+    c/+)
+  (generic-mul [m] "Generic 'mul' function for numerical values. Must satisfy (equals x (mul one x))."
+    c/*)
+  (generic-negate [m] "Generic 'negate' function for numerical values."
+    c/negate)
+  (generic-div [m] "Generic 'div' function for numerical values."
+    c/divide2c))
 
 ;; ========================================================================
 ;;
