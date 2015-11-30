@@ -128,6 +128,20 @@
                                  (mp/scale (clojure.core.matrix.complex/imag m) a))
       :else (error "Unable to multiply " (class a) " with a Complex value")))
 
+  mp/PMatrixOps
+  (trace [m]
+    (let [real-trace (m/trace (clojure.core.matrix.complex/real m))
+          imag-trace (m/trace (clojure.core.matrix.complex/imag m))]
+      (complex real-trace imag-trace)))
+  (determinant [m])
+  (inverse [m]
+    (let [A (clojure.core.matrix.complex/real m)
+          C (clojure.core.matrix.complex/imag m)
+          r0 (m/mul (m/inverse A) C)  ; use the highly optimized real inverse from
+          y11 (m/inverse (m/add (m/mul C r0) A))
+          y01 (m/mul r0 y11)]
+      (complex-array y11 (m/negate y01))))
+
   mp/PMatrixProducts
   (inner-product [m a]
     (ComplexArray. (mp/add-scaled (mp/inner-product (clojure.core.matrix.complex/real m)
@@ -235,6 +249,14 @@
      (m/numerical? m) (mp/coerce-param m (mp/broadcast-like m 0.0))
      (m/array? m) (m/emap imag m)
      :else (error "Unable to get imaginary part of object: " m " with type " (class m)))))
+
+(defn hermitian-transpose
+  "Returns the Hermitian Transpose (complex conjugate transpose) of the matrix"
+  [m]
+  (m/transpose
+    (clojure.core.matrix.complex/complex-array
+      (clojure.core.matrix.complex/real m)
+      (m/negate (clojure.core.matrix.complex/imag m)))))
 
 ;; ======================================================================
 ;; Print methods for complex types

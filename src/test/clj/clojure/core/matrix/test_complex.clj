@@ -51,3 +51,8 @@
   (is (m/e= (m/transpose (cm/complex-array [[1 2] [3 4]] [[10 2] [1 5]]))
             (cm/complex-array [[1 3] [2 4]] [[10 1] [2 5]]))))
 
+;; TODO: Add test for Hermitian Transpose
+;; TODO: Add test for inverse
+;; TODO: Add test for trace
+;; TODO: Add test for determinant
+
