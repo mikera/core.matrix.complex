@@ -133,12 +133,25 @@
     (let [real-trace (m/trace (clojure.core.matrix.complex/real m))
           imag-trace (m/trace (clojure.core.matrix.complex/imag m))]
       (complex real-trace imag-trace)))
-  ;(determinant [m]
-  ;  (if (= 2 (first (m/shape m)))
-  ;    (- (map #(reduce c/* %) (m/main-diagonal m) (m/transpose (m/main-diagonal m))))
-  ;    (+ (map (fn [matrix]
-  ;              (* (m/mget matrix index 0) m))
-  ;            (m/submatrix)))))
+  (determinant [m]
+    (if (= 2 (first (m/shape m)))
+      (reduce c/-
+              (map #(reduce c/* (mp/element-seq %))
+                   [(m/main-diagonal m)
+                    [(m/mget m 0 1) (m/mget m 1 0)]]))
+      (reduce c/+
+              (map (fn [index]
+                     (* (m/mget m 0 index)
+                        (mp/determinant
+                          (mp/join-along
+                            (mp/submatrix m
+                                          [[1 (dec (first (m/shape m)))]
+                                           [1 index]])
+                            (mp/submatrix m
+                                          [[1 (dec (first (m/shape m)))]
+                                           [(inc index) (second (m/shape m))]])
+                            0))
+                        (range)))))))
   (inverse [m]
     (let [A (clojure.core.matrix.complex/real m)
           C (clojure.core.matrix.complex/imag m)
