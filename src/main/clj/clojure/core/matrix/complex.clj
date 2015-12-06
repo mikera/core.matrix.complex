@@ -136,6 +136,7 @@
           imag-trace (m/trace (clojure.core.matrix.complex/imag m))]
       (complex real-trace imag-trace)))
   (determinant [m]
+    "Calculates the determinant of a matrix directly." ;; TODO: Can optimizations be made?
     (if (= 2 (first (m/shape m)))
       (reduce c/-
               (map #(reduce c/* (mp/element-seq %))
@@ -164,12 +165,16 @@
                                 (m/emap #(.getImaginary ^Complex %) wrapped))))))
                    (range (first (m/shape m)))))))
   (inverse [m]
+    "This implementation of inverse for complex numbers uses the (expected to be highly
+    optimized implementation of the matrix inverse for real numbers. This allows us to take
+    advantage of how the complex numbers are stored in the array (two seperate arrays).
+    If the matrix is singular, it returns an exception"
     (let [A (clojure.core.matrix.complex/real m)
           C (clojure.core.matrix.complex/imag m)
-          r0 (m/mul (m/inverse A) C)                        ; use the highly optimized real inverse from
+          r0 (m/mul (m/inverse A) C)
           y11 (m/inverse (m/add (m/mul C r0) A))
           y01 (m/mul r0 y11)]
-      (complex-array y11 (m/negate y01))))
+      (complex-array y11 (m/negate y01)))) ;; TODO: make sure IllegalArgument Exception is returned if m is singular
 
   mp/PMatrixProducts
   (inner-product [m a]
