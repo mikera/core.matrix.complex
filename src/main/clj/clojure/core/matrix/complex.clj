@@ -3,7 +3,8 @@
             [clojure.core.matrix :as m]
             [complex.core :as c]
             [clojure.core.matrix.implementations :as imp]
-            [mikera.cljutils.error :refer :all])
+            [mikera.cljutils.error :refer :all]
+            [clojure.tools.trace :as trc])
   (:import [org.apache.commons.math3.complex Complex]))
 
 (set! *warn-on-reflection* true)
@@ -17,6 +18,7 @@
 ;;
 ;; Implemented as a wrapper of two numerical arrays representing the real and imaginary parts
 
+(declare my-det)
 (deftype ComplexArray [real imag]
   mp/PImplementation
   (implementation-key [m]                                   ;; in this case, 'm' takes the place of the more typical 'this'
@@ -141,17 +143,26 @@
                     [(m/mget m 0 1) (m/mget m 1 0)]]))
       (reduce c/+
               (map (fn [index]
-                     (* (m/mget m 0 index)
-                        (mp/determinant
-                          (mp/join-along
-                            (mp/submatrix m
-                                          [[1 (dec (first (m/shape m)))]
-                                           [1 index]])
-                            (mp/submatrix m
-                                          [[1 (dec (first (m/shape m)))]
-                                           [(inc index) (second (m/shape m))]])
-                            0))
-                        (range)))))))
+                     (c/* (m/mget m 0 index)
+                          (reduce * (repeat index -1))
+                          (m/det
+                            (let [first_submatrix
+                                  (m/submatrix m
+                                               [[1 (dec (first (m/shape m)))]
+                                                [0 index]])
+                                  second_submatrix
+                                  (m/submatrix m
+                                               [[1 (dec (first (m/shape m)))]
+                                                [(inc index) (- (second (m/shape m)) index 1)]])
+                                  wrapped
+                                  (cond
+                                    (= 0 index) second_submatrix
+                                    (= (second (m/shape m)) (inc index)) first_submatrix
+                                    :else (m/join-along 1 first_submatrix second_submatrix))]
+                              (complex-array
+                                (m/emap #(.getReal ^Complex %) wrapped)
+                                (m/emap #(.getImaginary ^Complex %) wrapped))))))
+                   (range (first (m/shape m)))))))
   (inverse [m]
     (let [A (clojure.core.matrix.complex/real m)
           C (clojure.core.matrix.complex/imag m)
@@ -311,4 +322,3 @@
   (let [a (c/complex-number 2 3)]
     (imp/register-implementation a)
     a))
-
