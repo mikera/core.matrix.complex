@@ -2,7 +2,10 @@
   (:use clojure.test)
   (:require [complex.core :as c]
             [clojure.core.matrix.complex :as cm]
-            [clojure.core.matrix :as m]))
+            [clojure.core.matrix :as m]
+            [clojure.math.numeric-tower :as math])
+  (:import (clojure.math.numeric_tower MathFunctions)
+           (org.apache.commons.math3.complex Complex)))
 
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* true)
@@ -51,3 +54,49 @@
   (is (m/e= (m/transpose (cm/complex-array [[1 2] [3 4]] [[10 2] [1 5]]))
             (cm/complex-array [[1 3] [2 4]] [[10 1] [2 5]]))))
 
+(deftest herm-transpose
+  (is (m/e= (m/add (cm/hermitian-transpose
+                     (cm/complex-array (m/identity-matrix 2))) (c/complex-number 0 0))
+            (cm/complex-array (m/identity-matrix 2))))
+  (is (m/e= (m/add (cm/hermitian-transpose
+                     (cm/complex-array [[1 2] [3 4]])) (c/complex-number 0 0))
+            (cm/complex-array [[1 3] [2 4]] [[0 0] [0 0]])))
+  (is (m/e= (cm/hermitian-transpose (cm/complex-array [[1 2] [3 4]] [[10 2] [1 5]]))
+            (cm/complex-array [[1 3] [2 4]] [[-10 -1] [-2 -5]]))))
+
+(deftest trace
+  (is (= (m/trace (cm/complex-array (m/identity-matrix 10)))
+         (c/complex-number 10)))
+  (is (= (m/trace (cm/complex-array [[1 2] [3 4]]))
+         (c/complex-number 5)))
+  (is (= (m/trace (cm/complex-array [[1 2] [3 4]] [[10 2] [1 5]]))
+         (c/complex-number 5 15))))
+
+(deftest det
+  (is (= (m/det (cm/complex-array
+                  [[1 2 1] [3 4 2] [5 2 3]]
+                  [[0 1 0] [0 0 0] [0 0 0]]))
+         (c/complex-number -4 1)))
+  (is (= (m/det (cm/complex-array (m/identity-matrix 8)))   ;; Very slow to return if dim>8
+         (c/complex-number 1.0))))
+
+(deftest inverse
+  (is (m/equals (m/inverse (cm/complex-array (m/identity-matrix 10)))
+                (cm/complex-array (m/identity-matrix 10))
+                Double/MIN_VALUE))
+  (is (m/equals
+        (m/inverse (cm/complex-array
+                     [[1 2 1] [3 4 2] [5 2 3]]
+                     [[0 1 0] [0 0 0] [0 0 0]]))
+        (cm/complex-array
+          [[-1.88235 0.764706 0.117647]
+           [-0.23529 0.470588 -0.235294]
+           [3.29412 -1.58824 0.294118]]
+          [[-0.470588 0.941176 -0.470588]
+           [-0.058824 0.117647 -0.058824]
+           [0.823529 -1.64706 0.823529]])
+        0.0001)))
+
+;; TODO: Add test for inverse
+;; TODO: Add generative testing
+;; TODO: Optimize determinant

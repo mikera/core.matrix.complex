@@ -3,7 +3,8 @@
             [clojure.core.matrix :as m]
             [complex.core :as c]
             [clojure.core.matrix.implementations :as imp]
-            [mikera.cljutils.error :refer :all])
+            [mikera.cljutils.error :refer :all]
+            [clojure.tools.trace :as trc])
   (:import [org.apache.commons.math3.complex Complex]))
 
 (set! *warn-on-reflection* true)
@@ -17,6 +18,7 @@
 ;;
 ;; Implemented as a wrapper of two numerical arrays representing the real and imaginary parts
 
+(declare my-det)
 (deftype ComplexArray [real imag]
   mp/PImplementation
   (implementation-key [m]                                   ;; in this case, 'm' takes the place of the more typical 'this'
@@ -128,6 +130,52 @@
                                  (mp/scale (clojure.core.matrix.complex/imag m) a))
       :else (error "Unable to multiply " (class a) " with a Complex value")))
 
+  mp/PMatrixOps
+  (trace [m]
+    (let [real-trace (m/trace (clojure.core.matrix.complex/real m))
+          imag-trace (m/trace (clojure.core.matrix.complex/imag m))]
+      (complex real-trace imag-trace)))
+  (determinant [m]
+    "Calculates the determinant of a matrix directly." ;; TODO: Can optimizations be made?
+    (if (= 2 (first (m/shape m)))
+      (reduce c/-
+              (map #(reduce c/* (mp/element-seq %))
+                   [(m/main-diagonal m)
+                    [(m/mget m 0 1) (m/mget m 1 0)]]))
+      (reduce c/+
+              (map (fn [index]
+                     (c/* (m/mget m 0 index)
+                          (reduce * (repeat index -1))
+                          (m/det
+                            (let [first_submatrix
+                                  (m/submatrix m
+                                               [[1 (dec (first (m/shape m)))]
+                                                [0 index]])
+                                  second_submatrix
+                                  (m/submatrix m
+                                               [[1 (dec (first (m/shape m)))]
+                                                [(inc index) (- (second (m/shape m)) index 1)]])
+                                  wrapped
+                                  (cond
+                                    (= 0 index) second_submatrix
+                                    (= (second (m/shape m)) (inc index)) first_submatrix
+                                    :else (m/join-along 1 first_submatrix second_submatrix))]
+                              (complex-array
+                                (m/emap #(.getReal ^Complex %) wrapped)
+                                (m/emap #(.getImaginary ^Complex %) wrapped))))))
+                   (range (first (m/shape m)))))))
+  (inverse [m]
+    "This implementation of inverse for complex numbers uses the (expected to be highly
+    optimized implementation of the matrix inverse for real numbers. This allows us to take
+    advantage of how the complex numbers are stored in the array (two seperate arrays).
+    If the matrix is singular, it returns an exception"
+    (let [A (clojure.core.matrix.complex/real m)
+          C (clojure.core.matrix.complex/imag m)
+          r0 (m/inner-product (m/inverse A) C)
+          y11 (m/inverse (m/add (m/inner-product C r0) A))
+          y01 (m/inner-product r0 y11)]
+      (complex-array y11 (m/negate y01)))) ;; TODO: make sure IllegalArgument Exception is returned if m is singular
+
   mp/PMatrixProducts
   (inner-product [m a]
     (ComplexArray. (mp/add-scaled (mp/inner-product (clojure.core.matrix.complex/real m)
@@ -138,9 +186,35 @@
                    (mp/matrix-add (mp/inner-product (clojure.core.matrix.complex/real m)
                                                     (clojure.core.matrix.complex/imag a))
                                   (mp/inner-product (clojure.core.matrix.complex/imag m)
-                                                    (clojure.core.matrix.complex/real a))))))
+                                                    (clojure.core.matrix.complex/real a)))))
 
+  mp/PGenericValues
+  (generic-zero [m] "Generic 'zero' value for numerical arrays. Must satisfy (equals m (add m zero))."
+    (complex 0 0))
+  (generic-one [m] "Generic 'one' value for numerical arrays. Must satisfy (equals m (mul m one))."
+    (complex 1 0))
+  (generic-value [m] "Generic value for a new array. Likely to be zero or nil."
+    (complex 0 1))
 
+  mp/PGenericOperations
+  (generic-add [m] "Generic 'add' function for numerical values. Must satisfy (equals x (add zero x))."
+    c/+)
+  (generic-mul [m] "Generic 'mul' function for numerical values. Must satisfy (equals x (mul one x))."
+    c/*)
+  (generic-negate [m] "Generic 'negate' function for numerical values."
+    c/negate)
+  (generic-div [m] "Generic 'div' function for numerical values."
+    c/divide2c)
+
+  mp/PMatrixEqualityEpsilon
+  (matrix-equals-epsilon
+     [a b eps]
+    (every?
+      identity
+      (mapv (fn [alpha beta]
+                (Complex/equals ^Complex alpha ^Complex beta ^double eps))
+            (m/eseq a)
+            (m/eseq b)))))
 
 ;; ========================================================================
 ;;
@@ -236,6 +310,14 @@
      (m/array? m) (m/emap imag m)
      :else (error "Unable to get imaginary part of object: " m " with type " (class m)))))
 
+(defn hermitian-transpose
+  "Returns the Hermitian Transpose (complex conjugate transpose) of the matrix"
+  [m]
+  (m/transpose
+    (clojure.core.matrix.complex/complex-array
+      (clojure.core.matrix.complex/real m)
+      (m/negate (clojure.core.matrix.complex/imag m)))))
+
 ;; ======================================================================
 ;; Print methods for complex types
 (defmethod print-method ComplexArray [^Object v ^java.io.Writer w]
@@ -255,4 +337,3 @@
   (let [a (c/complex-number 2 3)]
     (imp/register-implementation a)
     a))
-
