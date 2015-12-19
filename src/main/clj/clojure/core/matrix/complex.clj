@@ -171,9 +171,9 @@
     If the matrix is singular, it returns an exception"
     (let [A (clojure.core.matrix.complex/real m)
           C (clojure.core.matrix.complex/imag m)
-          r0 (m/mul (m/inverse A) C)
-          y11 (m/inverse (m/add (m/mul C r0) A))
-          y01 (m/mul r0 y11)]
+          r0 (m/inner-product (m/inverse A) C)
+          y11 (m/inverse (m/add (m/inner-product C r0) A))
+          y01 (m/inner-product r0 y11)]
       (complex-array y11 (m/negate y01)))) ;; TODO: make sure IllegalArgument Exception is returned if m is singular
 
   mp/PMatrixProducts
@@ -204,7 +204,17 @@
   (generic-negate [m] "Generic 'negate' function for numerical values."
     c/negate)
   (generic-div [m] "Generic 'div' function for numerical values."
-    c/divide2c))
+    c/divide2c)
+
+  mp/PMatrixEqualityEpsilon
+  (matrix-equals-epsilon
+     [a b eps]
+    (every?
+      identity
+      (mapv (fn [alpha beta]
+                (Complex/equalsWithRelativeTolerance alpha beta eps))
+            (m/eseq a)
+            (m/eseq b)))))
 
 ;; ========================================================================
 ;;
