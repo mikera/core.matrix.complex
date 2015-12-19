@@ -212,7 +212,7 @@
     (every?
       identity
       (mapv (fn [alpha beta]
-                (Complex/equalsWithRelativeTolerance alpha beta eps))
+                (Complex/equals ^Complex alpha ^Complex beta ^double eps))
             (m/eseq a)
             (m/eseq b)))))
 
