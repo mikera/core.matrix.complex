@@ -5,7 +5,6 @@
                  [net.mikera/core.matrix "0.60.3"]
                  [complex "0.1.8"]
                  [net.mikera/clojure-utils "0.8.0"]
-                 [net.mikera/core.matrix.stats "0.7.0"]
                  [org.clojure/math.numeric-tower "0.0.4"]]
 
   :profiles {:dev {:dependencies [[net.mikera/vectorz-clj "0.47.0"]
