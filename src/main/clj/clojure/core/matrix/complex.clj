@@ -4,7 +4,6 @@
             [complex.core :as c]
             [clojure.core.matrix.implementations :as imp]
             [mikera.cljutils.error :refer :all]
-            [clojure.tools.trace :as trc])
   (:import [org.apache.commons.math3.complex Complex]))
 
 (set! *warn-on-reflection* true)

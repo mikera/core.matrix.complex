@@ -6,10 +6,10 @@
                  [complex "0.1.8"]
                  [net.mikera/clojure-utils "0.8.0"]
                  [net.mikera/core.matrix.stats "0.7.0"]
-                 [org.clojure/tools.trace "0.7.9"]
                  [org.clojure/math.numeric-tower "0.0.4"]]
 
   :profiles {:dev {:dependencies [[net.mikera/vectorz-clj "0.47.0"]
+                                  [org.clojure/tools.trace "0.7.9"]
                                   [net.mikera/cljunit "0.6.0"]
                                   [net.mikera/core.matrix.testing "0.0.4"]]}}
 
