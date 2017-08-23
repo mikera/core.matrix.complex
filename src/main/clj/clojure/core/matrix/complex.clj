@@ -4,7 +4,9 @@
             [complex.core :as c]
             [clojure.core.matrix.implementations :as imp]
             [mikera.cljutils.error :refer :all])
-  (:import [org.apache.commons.math3.complex Complex]))
+  (:import [org.apache.commons.math3.complex Complex]
+           (clojure.lang Seqable)
+           (java.io Writer)))
 
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* true)
@@ -86,11 +88,11 @@
   (element-type [m]
     Complex)
 
-  java.lang.Object
+  Object
   (toString [m]
     (str "#complex/complex-array [" (clojure.core.matrix.complex/real m) ", " (clojure.core.matrix.complex/imag m) "]"))
 
-  clojure.lang.Seqable
+  Seqable
   (seq [m]
     (map complex-array (m/slices (.real m)) (m/slices (.imag m))))
 
@@ -319,10 +321,10 @@
 
 ;; ======================================================================
 ;; Print methods for complex types
-(defmethod print-method ComplexArray [^Object v ^java.io.Writer w]
+(defmethod print-method ComplexArray [^Object v ^Writer w]
   (.write w (.toString v)))
 
-(defmethod print-method Complex [v ^java.io.Writer w]
+(defmethod print-method Complex [v ^Writer w]
   (.write w (str "#complex/complex [" (real v) ", " (imag v) "]")))
 
 ;; ======================================================================
