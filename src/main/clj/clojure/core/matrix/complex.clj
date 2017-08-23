@@ -3,7 +3,7 @@
             [clojure.core.matrix :as m]
             [complex.core :as c]
             [clojure.core.matrix.implementations :as imp]
-            [mikera.cljutils.error :refer :all]
+            [mikera.cljutils.error :refer :all])
   (:import [org.apache.commons.math3.complex Complex]))
 
 (set! *warn-on-reflection* true)
@@ -49,14 +49,14 @@
 
   mp/PIndexedAccess
   (get-1d [m x]
-    (c/complex-number (double (mp/get-1d (.real m) x))
-                      (double (mp/get-1d (.imag m) x))))
+    (c/complex (double (mp/get-1d (.real m) x))
+               (double (mp/get-1d (.imag m) x))))
   (get-2d [m x y]
-    (c/complex-number (double (mp/get-2d (.real m) x y))
-                      (double (mp/get-2d (.imag m) x y))))
+    (c/complex (double (mp/get-2d (.real m) x y))
+               (double (mp/get-2d (.imag m) x y))))
   (get-nd [m indexes]
-    (c/complex-number (double (mp/get-nd (.real m) indexes))
-                      (double (mp/get-nd (.imag m) indexes))))
+    (c/complex (double (mp/get-nd (.real m) indexes))
+               (double (mp/get-nd (.imag m) indexes))))
 
   mp/PIndexedSetting
   (set-1d [m row v]
@@ -267,12 +267,12 @@
   ([r]
    (cond
      (complex? r) r
-     (number? r) (c/complex-number r)
+     (number? r) (c/complex r)
      (mp/get-shape r) (complex-array r)
      :else (error "Unable to coerce to complex value: " r)))
   ([r i]
    (cond
-     (and (number? r) (number? i)) (c/complex-number r i)
+     (and (number? r) (number? i)) (c/complex r i)
      :else (error "Unable to coerce to complex value: " r i))))
 
 (defn complex?
@@ -333,6 +333,6 @@
     a))
 
 (def canonical-complex-number
-  (let [a (c/complex-number 2 3)]
+  (let [a (c/complex 2 3)]
     (imp/register-implementation a)
     a))
