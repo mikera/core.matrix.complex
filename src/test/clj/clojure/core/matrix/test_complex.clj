@@ -4,14 +4,13 @@
             [clojure.core.matrix.complex :as cm]
             [clojure.core.matrix :as m]
             [clojure.math.numeric-tower :as math])
-  (:import (clojure.math.numeric_tower MathFunctions)
-           (org.apache.commons.math3.complex Complex)))
+  (:import (org.apache.commons.math3.complex Complex)))
 
 (set! *warn-on-reflection* true)
 (set! *unchecked-math* true)
 
 (deftest test-complex
-  (let [c (c/complex-number 1 2)]
+  (let [c (c/complex 1 2)]
     (is (== 1 (cm/real c)))
     (is (== 2 (cm/imag c)))))
 
@@ -20,26 +19,26 @@
     (is (= [2] (m/shape ca)))
     (is (m/equals [1 2] (cm/real ca)))
     (is (m/equals [3 4] (cm/imag ca)))
-    (is (= (c/complex-number 1 3) (m/mget ca 0)))
-    (is (= (c/complex-number 2 4) (m/mget ca 1)))))
+    (is (= (c/complex 1 3) (m/mget ca 0)))
+    (is (= (c/complex 2 4) (m/mget ca 1)))))
 
 (deftest test-complex-predicates
-  (is (cm/complex? (c/complex-number 1 2)))
+  (is (cm/complex? (c/complex 1 2)))
   (is (cm/complex? (cm/complex-array 1 2)))
   (is (not (cm/complex? 3.5)))
   (is (not (cm/complex? [1 2 3])))
   (is (cm/complex? (cm/complex-array [1 2 3]))))
 
 (deftest test-complex-equality
-  (is (m/e= (c/complex-number 1 2) (cm/complex-array 1 2))))
+  (is (m/e= (c/complex 1 2) (cm/complex-array 1 2))))
 
 (deftest test-scaling
-  (is (= (c/complex-number 3 6) (m/scale (c/complex-number 1 2) 3)))
-  (is (= (c/complex-number 3 6) (m/scale 3 (c/complex-number 1 2))))
-  (is (= (c/complex-number 3 6) (m/mul (c/complex-number 1 2) 3)))
-  (is (= (c/complex-number 3 6) (m/mul 3 (c/complex-number 1 2))))
-  (is (= (c/complex-number 3 6) (m/mul 3 (c/complex-number 1 2))))
-  (is (= (c/complex-number -310 70) (m/scale (c/complex-number 1 3) (c/complex-number -10 100))))
+  (is (= (c/complex 3 6) (m/scale (c/complex 1 2) 3)))
+  (is (= (c/complex 3 6) (m/scale 3 (c/complex 1 2))))
+  (is (= (c/complex 3 6) (m/mul (c/complex 1 2) 3)))
+  (is (= (c/complex 3 6) (m/mul 3 (c/complex 1 2))))
+  (is (= (c/complex 3 6) (m/mul 3 (c/complex 1 2))))
+  (is (= (c/complex -310 70) (m/scale (c/complex 1 3) (c/complex -10 100))))
   (is (= (m/scale
            (cm/complex-array (m/identity-matrix 2))
            (cm/complex 3 6))))
@@ -56,29 +55,29 @@
 
 (deftest herm-transpose
   (is (m/e= (m/add (cm/hermitian-transpose
-                     (cm/complex-array (m/identity-matrix 2))) (c/complex-number 0 0))
+                     (cm/complex-array (m/identity-matrix 2))) (c/complex 0 0))
             (cm/complex-array (m/identity-matrix 2))))
   (is (m/e= (m/add (cm/hermitian-transpose
-                     (cm/complex-array [[1 2] [3 4]])) (c/complex-number 0 0))
+                     (cm/complex-array [[1 2] [3 4]])) (c/complex 0 0))
             (cm/complex-array [[1 3] [2 4]] [[0 0] [0 0]])))
   (is (m/e= (cm/hermitian-transpose (cm/complex-array [[1 2] [3 4]] [[10 2] [1 5]]))
             (cm/complex-array [[1 3] [2 4]] [[-10 -1] [-2 -5]]))))
 
 (deftest trace
   (is (= (m/trace (cm/complex-array (m/identity-matrix 10)))
-         (c/complex-number 10)))
+         (c/complex 10)))
   (is (= (m/trace (cm/complex-array [[1 2] [3 4]]))
-         (c/complex-number 5)))
+         (c/complex 5)))
   (is (= (m/trace (cm/complex-array [[1 2] [3 4]] [[10 2] [1 5]]))
-         (c/complex-number 5 15))))
+         (c/complex 5 15))))
 
 (deftest det
   (is (= (m/det (cm/complex-array
                   [[1 2 1] [3 4 2] [5 2 3]]
                   [[0 1 0] [0 0 0] [0 0 0]]))
-         (c/complex-number -4 1)))
+         (c/complex -4 1)))
   (is (= (m/det (cm/complex-array (m/identity-matrix 8)))   ;; Very slow to return if dim>8
-         (c/complex-number 1.0))))
+         (c/complex 1.0))))
 
 (deftest inverse
   (is (m/equals (m/inverse (cm/complex-array (m/identity-matrix 10)))
