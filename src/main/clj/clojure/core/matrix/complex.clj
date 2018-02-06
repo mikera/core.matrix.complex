@@ -240,6 +240,22 @@
   (supports-dimensionality? [m dims]
     true))
 
+(extend-protocol mp/PMatrixEquality
+  Complex
+  (matrix-equals
+    [a b]
+    (if (== 0 (m/dimensionality b))
+      (c/equals a (c/complex (m/mget b)))
+      false)))
+
+(extend-protocol mp/PMatrixEqualityEpsilon
+  Complex
+  (matrix-equals-epsilon
+    [a b eps] 
+    (if (== 0 (m/dimensionality b))
+      (c/equals a (c/complex (m/mget b)) (double eps))
+      false)))
+
 (extend-protocol mp/PMatrixScaling
   Complex
   (scale [m a]
