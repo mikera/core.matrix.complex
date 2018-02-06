@@ -17,7 +17,7 @@
 ;;
 ;; The ComplexArray class and protocol implementations
 ;;
-;; Implemented as a wrapper of two numerical arrays representing the real and imaginary parts
+;; Implemented as a wrapper of two real-valued numerical arrays representing the real and imaginary parts
 
 (declare my-det)
 (deftype ComplexArray [real imag]
@@ -59,6 +59,15 @@
   (get-nd [m indexes]
     (c/complex (double (mp/get-nd (.real m) indexes))
                (double (mp/get-nd (.imag m) indexes))))
+  
+  mp/PZeroDimensionAccess
+  (get-0d
+    [m]
+    (c/complex (mp/get-0d (.real m)) (mp/get-0d (.imag m))))
+  (set-0d!
+    [m v]
+    (mp/set-0d! (.real m) (clojure.core.matrix.complex/real v))
+    (mp/set-0d! (.imag m) (clojure.core.matrix.complex/imag v)))
 
   mp/PIndexedSetting
   (set-1d [m row v]
@@ -92,6 +101,11 @@
   (toString [m]
     (str "#complex/complex-array [" (clojure.core.matrix.complex/real m) ", " (clojure.core.matrix.complex/imag m) "]"))
 
+  mp/PReshaping
+  (reshape [m shape]
+    (ComplexArray. (mp/reshape real shape)
+                   (mp/reshape imag shape)))
+  
   Seqable
   (seq [m]
     (map complex-array (m/slices (.real m)) (m/slices (.imag m))))
