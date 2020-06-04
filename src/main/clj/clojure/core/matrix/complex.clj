@@ -109,6 +109,26 @@
   Seqable
   (seq [m]
     (map complex-array (m/slices (.real m)) (m/slices (.imag m))))
+  
+  mp/PMatrixMultiply
+  (matrix-multiply [m a]
+    ;; \\(AB = (A_r + A_i I)(B_r + B_i I) = (A_rB_r - A_iB_i) + (A_rB_i + A_iB_r)I \\)
+    (ComplexArray.
+     (mp/add-scaled
+      (mp/matrix-multiply
+       (clojure.core.matrix.complex/real m)
+       (clojure.core.matrix.complex/real a))
+      -1
+      (mp/matrix-multiply
+       (clojure.core.matrix.complex/imag m)
+       (clojure.core.matrix.complex/imag a)))
+     (mp/matrix-add
+      (mp/matrix-multiply
+       (clojure.core.matrix.complex/real m)
+       (clojure.core.matrix.complex/imag a))
+      (mp/matrix-multiply
+       (clojure.core.matrix.complex/imag m)
+       (clojure.core.matrix.complex/real a)))))  
 
   mp/PMatrixAdd
   (matrix-add [m a]
